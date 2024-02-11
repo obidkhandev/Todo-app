@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_app/ui/home/ui/widget/create_todo_list_widget.dart';
@@ -40,31 +41,57 @@ class _HomePageState extends State<HomePage> {
                 return const CreateTodoListWidget();
               });
         },
-        child: Icon(
+        child: const Icon(
           Icons.add,
         ),
       ),
-      body: ListView.builder(
-        itemCount: 10,
-        padding: const EdgeInsets.fromLTRB(18, 0, 18, 100),
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: Text(
-              "${index + 1}.",
-              style: TextStyle(fontSize: 18),
-            ),
-            contentPadding: const EdgeInsets.all(8),
-            title: Text("Title"),
-            subtitle: Text("Subtitle"),
-            trailing: IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.delete,
-                  color: Colors.red.shade400,
-                )),
-          );
-        },
-      ),
+      body: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection("Tasks")
+              .orderBy("task-deadline")
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.active) {
+              final docs = snapshot.data?.docs;
+
+              return ListView.builder(
+                itemCount: docs?.length ?? 0,
+                padding: const EdgeInsets.fromLTRB(18, 0, 18, 100),
+                itemBuilder: (context, index) {
+                  final doc = docs![index].data();
+
+                  Timestamp time = doc["task-deadline"];
+                  time.toDate();
+                  // DateTime time = doc["task-deadline"];
+
+                  return ListTile(
+                    leading: Text(
+                      "${index + 1}.",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    contentPadding: const EdgeInsets.all(8),
+                    title: Text(doc["task-name"]),
+                    subtitle: Text(
+                        "${time.toDate().day}.${time.toDate().month}.${time.toDate().year}"),
+                    trailing: IconButton(
+                        onPressed: () {
+                          FirebaseFirestore.instance
+                              .collection("Tasks")
+                              .doc(docs[index].id)
+                              .delete();
+                        },
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.red.shade400,
+                        )),
+                  );
+                },
+              );
+            }
+            return const Center(
+              child: Text("No Data"),
+            );
+          }),
     );
   }
 }
