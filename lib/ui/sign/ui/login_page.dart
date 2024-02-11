@@ -65,11 +65,20 @@ class _LoginPageState extends State<LoginPage> {
                       setState(() {
                         isLoading = true;
                       });
-                      await FirebaseAuth.instance
-                          .signInWithEmailAndPassword(
-                        email: _emailController.text,
-                        password: _passwordController.text,
-                      );
+                      try {
+                        await FirebaseAuth.instance.signInWithEmailAndPassword(
+                          email: _emailController.text,
+                          password: _passwordController.text,
+                        );
+                      } catch (error) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              error.toString(),
+                            ),
+                          ),
+                        );
+                      }
                       setState(() {
                         isLoading = false;
                       });
@@ -86,14 +95,20 @@ class _LoginPageState extends State<LoginPage> {
                       setState(() {
                         isLoading = true;
                       });
-                      try{
-                      await FirebaseAuth.instance
-                          .createUserWithEmailAndPassword(
-                        email: _emailController.text,
-                        password: _passwordController.text,
-                      );
-                      }catch (FirebaseException){
-                        
+                      try {
+                        await FirebaseAuth.instance
+                            .createUserWithEmailAndPassword(
+                          email: _emailController.text,
+                          password: _passwordController.text,
+                        );
+                      } catch (error) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              error.toString(),
+                            ),
+                          ),
+                        );
                       }
                       setState(() {
                         isLoading = false;

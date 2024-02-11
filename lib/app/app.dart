@@ -12,9 +12,8 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Todo App',
       theme: ThemeData(
-        primaryColor: Colors.green,
-        appBarTheme: const AppBarTheme(color: Colors.green),
-        useMaterial3: true,
+        useMaterial3: false,
+        primarySwatch: Colors.green,
       ),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
